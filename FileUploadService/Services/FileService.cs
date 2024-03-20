@@ -74,7 +74,7 @@ namespace FileUploadService.Services {
             return await File.ReadAllBytesAsync(fileEntity.FilePath);
         }
 
-        public async Task<FileEntity> UploadFileAsync(long userId, IFormFile file) {
+        public async Task<FileDto> UploadFileAsync(long userId, IFormFile file) {
 
             if (userId <= 0 || file == null) {
                 throw new ArgumentException("Invalid parameters");
@@ -98,7 +98,11 @@ namespace FileUploadService.Services {
             await fileRepository.InsertAsync(fileToSave);
             await fileRepository.SaveAsync();
 
-            return fileToSave;
+            return new FileDto {
+                Id = fileToSave.Id,
+                FileName = fileToSave.FileName,
+                ContentType = fileToSave.ContentType
+            };
         }
 
         private void validateFile(IFormFile file) {

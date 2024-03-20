@@ -8,6 +8,7 @@ using FileUploadService.Exceptions;
 using FileUploadService.Models;
 using FileUploadService.Repositories;
 using FileUploadService.Services;
+using FileUploadService.DTOs;
 
 namespace FileUploadService.Controllers
 {
@@ -58,7 +59,7 @@ namespace FileUploadService.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile file) {
 
-            FileEntity uploadedFile;
+            FileDto uploadedFile;
             try {
                 long userId = getUserId(HttpContext.User);
                 uploadedFile = await fileService.UploadFileAsync(userId, file);

@@ -27,6 +27,6 @@ namespace FileUploadService.Services
         /// <param name="fileName"></param>
         /// <param name="file"></param>
 
-        Task<FileEntity> UploadFileAsync(long userId, IFormFile file);
+        Task<FileDto> UploadFileAsync(long userId, IFormFile file);
     }
 }
