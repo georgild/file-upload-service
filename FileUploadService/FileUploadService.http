@@ -1,0 +1,6 @@
+@WacomFileUploadService_HostAddress = http://localhost:5223
+
+GET {{WacomFileUploadService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
