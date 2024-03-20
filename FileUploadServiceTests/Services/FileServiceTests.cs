@@ -39,9 +39,12 @@ namespace FileUploadServiceTests.Services
 
         [Fact]
         public async void Upload_SizeOutOfRange_ThrowsError() {
+            string fileName = "test";
+            int fileSize = 10000000;
+
             Mock<IFormFile> formFileMock = new Mock<IFormFile>();
-            formFileMock.Setup(n => n.FileName).Returns("test");
-            formFileMock.Setup(n => n.Length).Returns(10000000);
+            formFileMock.Setup(n => n.FileName).Returns(fileName);
+            formFileMock.Setup(n => n.Length).Returns(fileSize);
 
             Func<Task> result = () => fileService.UploadFileAsync(1, formFileMock.Object);
 
@@ -50,10 +53,14 @@ namespace FileUploadServiceTests.Services
 
         [Fact]
         public async void Upload_InvalidFileType_ThrowsError() {
+            string fileName = "test";
+            int fileSize = 1000;
+            string contentType = "document/docx";
+
             Mock<IFormFile> formFileMock = new Mock<IFormFile>();
-            formFileMock.Setup(n => n.FileName).Returns("test");
-            formFileMock.Setup(n => n.Length).Returns(1000);
-            formFileMock.Setup(n => n.ContentType).Returns("docx");
+            formFileMock.Setup(n => n.FileName).Returns(fileName);
+            formFileMock.Setup(n => n.Length).Returns(fileSize);
+            formFileMock.Setup(n => n.ContentType).Returns(contentType);
 
             Func<Task> result = () => fileService.UploadFileAsync(1, formFileMock.Object);
 
@@ -63,7 +70,7 @@ namespace FileUploadServiceTests.Services
         [Fact]
         public async void Upload_Success_ReturnsUploadedFile() {
             string fileName = "test";
-            string contentType = "image";
+            string contentType = "image/png";
 
             Mock<IFormFile> formFileMock = new Mock<IFormFile>();
             formFileMock.Setup(n => n.FileName).Returns(fileName);
