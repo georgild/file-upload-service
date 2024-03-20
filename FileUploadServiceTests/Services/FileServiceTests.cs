@@ -5,12 +5,16 @@ using FileUploadService.Exceptions;
 using FileUploadService.Models;
 using FileUploadService.Repositories;
 using FileUploadService.Services;
+using System;
+using FileUploadService.DTOs;
 
 namespace FileUploadServiceTests.Services
 {
     public class FileServiceTests {
 
         private readonly Mock<IFileRepository> mockFileRepo;
+
+        private readonly Mock<IStorageService> mockStorageService;
 
         private readonly FileService fileService;
 
@@ -21,7 +25,8 @@ namespace FileUploadServiceTests.Services
 
         public FileServiceTests() {
             mockFileRepo = new Mock<IFileRepository>();
-            fileService = new FileService(mockFileRepo.Object, maxFileSizeBytes, allowedFileTypes, "");
+            mockStorageService = new Mock<IStorageService>();
+            fileService = new FileService(mockFileRepo.Object, mockStorageService.Object, maxFileSizeBytes, allowedFileTypes);
 
         }
         [Fact]
@@ -53,6 +58,28 @@ namespace FileUploadServiceTests.Services
             Func<Task> result = () => fileService.UploadFileAsync(1, formFileMock.Object);
 
             await Assert.ThrowsAsync<InvalidFileTypeException>(result);
+        }
+
+        [Fact]
+        public async void Upload_Success_ReturnsUploadedFile() {
+            string fileName = "test";
+            string contentType = "image";
+
+            Mock<IFormFile> formFileMock = new Mock<IFormFile>();
+            formFileMock.Setup(n => n.FileName).Returns(fileName);
+            formFileMock.Setup(n => n.Length).Returns(1000);
+            formFileMock.Setup(n => n.ContentType).Returns(contentType);
+
+            mockFileRepo.Setup(s => s.InsertAsync(It.IsAny<FileEntity>())).Returns(Task.CompletedTask);
+            mockFileRepo.Setup(s => s.SaveAsync()).Returns(Task.CompletedTask);
+
+            mockStorageService.Setup(s => s.WriteFileAsync(formFileMock.Object)).Returns(Task.FromResult("storage_path"));
+
+            FileDto result = await fileService.UploadFileAsync(1, formFileMock.Object);
+
+            Assert.NotNull(result);
+            Assert.Equal(result.FileName, fileName);
+            Assert.Equal(result.ContentType, contentType);
         }
     }
 }

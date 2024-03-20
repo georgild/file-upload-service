@@ -1,7 +1,5 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using System.Security.Authentication;
-using FileUploadService.Controllers;
 using FileUploadService.DTOs;
 using FileUploadService.Exceptions;
 using FileUploadService.Models;
@@ -13,18 +11,17 @@ namespace FileUploadService.Services {
 
         private readonly IFileRepository fileRepository;
 
-        private readonly int maxFileSizeBytes;
+        private readonly IStorageService storageService;
 
-        private readonly string storagePath;
+        private readonly int maxFileSizeBytes;
 
         private readonly string[] allowedFileTypes;
 
-        public FileService(IFileRepository fileRepository, IConfiguration config) {
+        public FileService(IFileRepository fileRepository, IConfiguration config, IStorageService storageService) {
             this.fileRepository = fileRepository;
+            this.storageService = storageService;
 
             maxFileSizeBytes = config.GetValue("MaxFileSize", 10000);
-
-            storagePath = getDefaultStoragePath();
 
             string? allowedFileTypesConfig;
             allowedFileTypesConfig = config.GetValue("AllowedFileTypes", "pdf,images");
@@ -41,11 +38,11 @@ namespace FileUploadService.Services {
         }
 
         // Construct passing values instead of config
-        public FileService(IFileRepository fileRepository, int maxFileSizeBytes, string[] allowedFileTypes, string storagePath) {
+        public FileService(IFileRepository fileRepository, IStorageService storageService, int maxFileSizeBytes, string[] allowedFileTypes) {
             this.fileRepository = fileRepository;
+            this.storageService= storageService;
             this.maxFileSizeBytes = maxFileSizeBytes;
             this.allowedFileTypes = allowedFileTypes;
-            this.storagePath = storagePath;
         }
 
         public async Task<List<FileDto>> GetUserFilesAsync(long userId) {
@@ -71,7 +68,7 @@ namespace FileUploadService.Services {
                 throw new FileNotFoundException();
             }
 
-            return await File.ReadAllBytesAsync(fileEntity.FilePath);
+            return await storageService.ReadBytesAsync(fileEntity.FilePath);
         }
 
         public async Task<FileDto> UploadFileAsync(long userId, IFormFile file) {
@@ -81,12 +78,8 @@ namespace FileUploadService.Services {
             }
 
             validateFile(file);
- 
-            string filePath = Path.Combine(storagePath, file.FileName + "_" + Guid.NewGuid().ToString());
 
-            using (FileStream output = File.Create(filePath)) {
-                await file.CopyToAsync(output);
-            }
+            string filePath = await storageService.WriteFileAsync(file);
 
             FileEntity fileToSave = new FileEntity {
                 FilePath = filePath,
@@ -122,15 +115,6 @@ namespace FileUploadService.Services {
             if (!allowedFileTypes.Any(ft => contentType.Contains(ft))) {
                 throw new InvalidFileTypeException("File type is invalid");
             }
-        }
-
-        private string getDefaultStoragePath() {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            string path = Path.Join(Environment.GetFolderPath(folder), "Storage");
-            if (!Directory.Exists(path)) {
-                Directory.CreateDirectory(path);
-            }
-            return path;
         }
     }
 }

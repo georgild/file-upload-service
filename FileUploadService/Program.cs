@@ -45,6 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Register services
 builder.Services.AddTransient<IFileRepository, FileRepository>();
 builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IStorageService, StorageService>();
 
 var app = builder.Build();
 
