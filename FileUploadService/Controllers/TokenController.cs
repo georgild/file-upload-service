@@ -16,13 +16,13 @@ namespace FileUploadService.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class AuthController : ControllerBase {
+    public class TokenController : ControllerBase {
 
         private readonly string jwtKey;
 
         private readonly string jwtIssuer;
 
-        public AuthController(IConfiguration config, ILogger<FilesController> logger) {
+        public TokenController(IConfiguration config, ILogger<FilesController> logger) {
 
             string? jwtKeyConfig = config.GetSection("Jwt:Key").Get<string>();
             string? jwtIssuerConfig = config.GetSection("Jwt:Issuer").Get<string>();
