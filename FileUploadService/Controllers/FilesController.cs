@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
 using System.Security.Authentication;
 using System.Security.Claims;
 using FileUploadService.Exceptions;
-using FileUploadService.Models;
-using FileUploadService.Repositories;
 using FileUploadService.Services;
 using FileUploadService.DTOs;
 
@@ -26,6 +22,10 @@ namespace FileUploadService.Controllers
             this.fileService = fileService;
         }
 
+        /// <summary>
+        /// Get list of files for authenticated user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Get() {
 
@@ -40,6 +40,11 @@ namespace FileUploadService.Controllers
             }
         }
 
+        /// <summary>
+        /// Read a file by ID and return it as bytestream
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id) {
 
@@ -56,6 +61,11 @@ namespace FileUploadService.Controllers
             }
         }
 
+        /// <summary>
+        /// Upload form file for authenticated user
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> Upload(IFormFile file) {
 

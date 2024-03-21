@@ -35,6 +35,11 @@ namespace FileUploadService.Controllers
             jwtIssuer = jwtIssuerConfig;
         }
 
+        /// <summary>
+        /// Get JWT token for login request
+        /// </summary>
+        /// <param name="loginRequest"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Post([FromBody] LoginDto loginRequest) {
